@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from "http";
-import { readProducts } from "../service/products.service";
+import { insertProduct, readProducts } from "../service/products.service";
 import type { IProducts } from "../types/products.types";
 import { parseBody } from "../utility/parseBody";
 
@@ -50,13 +50,27 @@ export const productsController = async (
   }
   //* create a product
   else if (method === "POST" && url === "/products") {
-    const body = await parseBody(req);
-    console.log(body);
+    const body = await parseBody<IProducts>(req);
+    // console.log(body);
+    const { id, ...rest } = body; //* id ke body teke alada korci(jdi id de).
+
+    const newProduct = {
+      id: Date.now(),
+      ...rest,
+    };
+
+    const products = readProducts();
+
+    products.push(newProduct);
+    // console.log(products);
+
+    insertProduct(products);
+
     res.writeHead(200, { "content-type": "application/json" });
     res.end(
       JSON.stringify({
         message: "Product created successfully",
-        data: body,
+        data: newProduct,
       }),
     );
   }

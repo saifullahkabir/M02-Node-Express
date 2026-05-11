@@ -28,5 +28,23 @@
     "name": "4K Ultra HD Monitor",
     "price": 320,
     "description": "27-inch 4K monitor with ultra-thin bezels and vibrant color accuracy."
+  },
+  {
+    "id": 1778526381597,
+    "name": "test product",
+    "price": 200,
+    "description": "test test product"
+  },
+  {
+    "id": 1778526462098,
+    "name": "test product-1",
+    "price": 200,
+    "description": "test test product 1"
+  },
+  {
+    "id": 1778526657686,
+    "name": "test product-1",
+    "price": 200,
+    "description": "test test product 1"
   }
 ]
