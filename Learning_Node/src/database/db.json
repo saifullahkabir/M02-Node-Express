@@ -36,15 +36,10 @@
     "description": "test test product"
   },
   {
-    "id": 1778526462098,
-    "name": "test product-1",
-    "price": 200,
-    "description": "test test product 1"
-  },
-  {
     "id": 1778526657686,
     "name": "test product-2",
     "price": 300,
     "description": "test test product 2"
   }
 ]
+
