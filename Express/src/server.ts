@@ -1,5 +1,4 @@
 import express, {
-  application,
   type Application,
   type Request,
   type Response,
@@ -41,7 +40,7 @@ initDB();
 
 app.get("/", (req: Request, res: Response) => {
   //   res.send("Express server is running");
-  res.status(200).json({
+  return res.status(200).json({
     message: "Express Server",
     author: "Saifullah Kabir",
   });
@@ -60,14 +59,14 @@ app.post("/api/users", async (req: Request, res: Response) => {
       [name, email, password, age],
     );
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "User Created Successfully",
       data: result.rows[0],
     });
   } catch (error: any) {
-    res.status(500).json({
-      sucess: false,
+    return res.status(500).json({
+      success: false,
       message: error.message,
       error: error,
     });
@@ -81,13 +80,13 @@ app.get("/api/users", async (req: Request, res: Response) => {
       SELECT * FROM users
       `);
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Users retrived successfully",
       data: result.rows,
     });
   } catch (error: any) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message,
       error: error,
@@ -97,8 +96,9 @@ app.get("/api/users", async (req: Request, res: Response) => {
 
 //* get single user
 app.get("/api/users/:id", async (req: Request, res: Response) => {
+  const id = req.params.id;
+
   try {
-    const id = req.params.id;
     const result = await pool.query(
       `
       SELECT * FROM users WHERE id=$1
@@ -107,20 +107,56 @@ app.get("/api/users/:id", async (req: Request, res: Response) => {
     );
 
     if (result.rows.length === 0) {
-      res.status(404).json({
+      return res.status(404).json({
         success: false,
         message: "User not found!",
         data: null,
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "User retrived successfully",
       data: result.rows[0],
     });
   } catch (error: any) {
-    res.status(500).json({
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+      error: error,
+    });
+  }
+});
+
+//* update user data
+app.put("/api/users/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { name, password, age, is_active } = req.body;
+
+  try {
+    const result = await pool.query(
+      `
+      UPDATE users SET name=$1, password=$2, age=$3, is_active=$4 WHERE id=$5 
+      RETURNING *
+      `,
+      [name, password, age, is_active, id],
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found!",
+        data: null,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      data: result.rows[0],
+    });
+  } catch (error: any) {
+    return res.status(500).json({
       success: false,
       message: error.message,
       error: error,
