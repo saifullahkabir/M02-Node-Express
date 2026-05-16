@@ -1,29 +1,38 @@
+import bcrypt from "bcryptjs";
 import { pool } from "../../db";
 import type { IUser } from "./user.interface";
 
 const createUserIntoDB = async (payload: IUser) => {
   const { name, email, password, age } = payload;
+
+  const hashPassword = await bcrypt.hash(password, 10);
+  console.log(hashPassword);
   const result = await pool.query(
     `
     INSERT INTO users(name, email, password, age) VALUES($1, $2, $3, $4) 
     RETURNING *
     `,
-    [name, email, password, age],
+    [name, email, hashPassword, age],
   );
+
+  delete result.rows[0].password;
+  delete result.rows[0].is_active;
+
   return result;
 };
 
 const getAllUsersFromDB = async () => {
   const result = await pool.query(`
-      SELECT * FROM users
+      SELECT id, name, email, age, created_at FROM users
       `);
+
   return result;
 };
 
 const getSingleUserFromDB = async (id: string) => {
   const result = await pool.query(
     `
-      SELECT * FROM users WHERE id=$1
+      SELECT id, name, email, age, created_at FROM users WHERE id=$1
       `,
     [id],
   );
@@ -41,7 +50,7 @@ const updateUserIntoDB = async (payload: IUser, id: string) => {
       age=COALESCE($3, age), 
       is_active=COALESCE($4, is_active) 
       
-      WHERE id=$5 RETURNING *
+      WHERE id=$5 RETURNING id, name, email, age, created_at, updated_at
       `,
     [name, password, age, is_active, id],
   );
@@ -63,5 +72,5 @@ export const userService = {
   getAllUsersFromDB,
   getSingleUserFromDB,
   updateUserIntoDB,
-  deleteUserIntoDB
+  deleteUserIntoDB,
 };
